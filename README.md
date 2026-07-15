@@ -5,7 +5,7 @@ code that computes cosmological observables), then show that MCMC parameter
 inference using the emulator recovers the same answer as inference using
 the real, slow calculation — thousands of times faster.
 
-## Motivation  
+## Motivation
 
 Boltzmann codes like [CAMB](https://camb.info/) compute predictions (e.g.
 the matter power spectrum P(k)) from a set of cosmological parameters, but
@@ -22,18 +22,44 @@ end-to-end, on a public and reproducible target (CAMB's matter power
 spectrum), as a demonstration of the technique applied to models where
 evaluation cost — not sampling design — is the bottleneck.
 
-## Pipeline
+## How It Works
+
+**1. `scripts/generate_data.py`** — Latin-hypercube samples 300 combinations
+of 5 cosmological parameters (H0, ombh2, omch2, ns, As), runs CAMB on each
+to get the linear matter power spectrum P(k), and saves the (params, P(k))
+pairs. Checkpointed to survive interruption across long-running batches.
+
+**2. `scripts/train_emulator.py`** — Trains a 3-hidden-layer feedforward
+network (PyTorch, SiLU activations, 256 units/layer) to map the 5
+parameters directly to log₁₀ P(k). Inputs are standardized; log-space
+training accounts for P(k)'s multi-order-of-magnitude range. 80/20
+train/val split, early stopping on validation loss.
+
+**3. `scripts/mcmc_compare.py`** — Generates synthetic "observed" P(k) at
+known fiducial parameters (+2% noise), then runs `emcee` two ways: a full
+36,000-evaluation chain using the emulator, and a short chain using real
+CAMB to measure true per-evaluation cost. Extrapolates the full-chain CAMB
+cost from the measured rate.
+
+**4. `scripts/make_plots.py`** — Generates the accuracy comparison
+(emulator vs. real CAMB across held-out samples) and the posterior corner
+plot from the emulator-driven MCMC chain.
+
+## Repository Structure
 
 ```
-scripts/generate_data.py   -> Latin-hypercube-sample 5 cosmological params,
-                               run real CAMB for each, save (params, P(k)) pairs
-scripts/train_emulator.py  -> Train a PyTorch feedforward network to predict
-                               log10 P(k) from the 5 parameters
-scripts/mcmc_compare.py    -> Run MCMC (emcee) two ways: using the emulator
-                               (fast, full-length chain) and using real CAMB
-                               (slow, short chain) — compare timing and
-                               parameter recovery
-scripts/make_plots.py      -> Generate accuracy and posterior diagnostic plots
+cosmo-emulator/
+├── README.md
+├── requirements.txt
+├── scripts/
+│   ├── generate_data.py
+│   ├── train_emulator.py
+│   ├── mcmc_compare.py
+│   └── make_plots.py
+├── data/            # generated params, P(k) curves, MCMC results
+├── models/          # trained emulator weights + scalers
+├── emulator_accuracy.png
+└── posterior_corner.png
 ```
 
 ## Parameters varied
@@ -124,7 +150,7 @@ Data generation is checkpointed: if interrupted, re-running
 `generate_data.py <batch_size>` resumes from where it left off rather than
 starting over.
 
-## Honesty notes
+## Limitations & Scope
 
 - The "short CAMB chain" (30 evaluations) is deliberately short — a real
   full-length CAMB-based chain would take ~36 hours, which isn't
@@ -140,4 +166,3 @@ starting over.
   cosmic voids model directly — the point is to demonstrate the emulation
   + faster-than-MCMC-sampling pattern end-to-end on a public, reproducible
   target that maps onto the same underlying problem.
-#
