@@ -162,7 +162,3 @@ starting over.
   problem, not a claim that 300 samples is sufficient for every emulation
   problem. Higher-dimensional or less smooth target functions typically
   need more training data.
-- This targets CAMB's matter power spectrum, not Prof. Givans' (unpublished)
-  cosmic voids model directly — the point is to demonstrate the emulation
-  + faster-than-MCMC-sampling pattern end-to-end on a public, reproducible
-  target that maps onto the same underlying problem.
