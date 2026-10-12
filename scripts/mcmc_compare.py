@@ -8,7 +8,7 @@ same synthetic "observed" data --
   2. Using the trained neural emulator for the likelihood (fast, ~microseconds)
 
 ...and compare (a) wall-clock time and (b) whether the recovered
-parameters agree. This directly demonstrates the pattern Givans described:
+parameters agree. This directly demonstrates the emulator pattern:
 "emulate the slow model, then do faster-than-naive-MCMC inference."
 
 Because a full-length MCMC chain (thousands of steps) via real CAMB would

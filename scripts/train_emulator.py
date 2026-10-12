@@ -4,7 +4,7 @@ train_emulator.py
 Trains a PyTorch neural network emulator that predicts the matter power
 spectrum P(k) directly from cosmological parameters, without calling CAMB.
 
-This is the core idea Givans described: replace a slow, exact calculation
+This is the core idea: replace a slow, exact calculation
 (CAMB, ~3s/call) with a fast neural network approximation (~microseconds),
 so it can be called thousands of times inside an MCMC loop without the
 computation itself becoming the bottleneck.
