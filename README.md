@@ -124,7 +124,7 @@ trending toward the same region as the converged emulator posterior):
 This project uses CAMB's matter power spectrum as the "slow model" because
 it is public and reproducible, but the pattern is general: any model that
 is expensive to evaluate but needs to be sampled thousands of times for
-Bayesian inference (e.g. a cosmic voids model) can use the same recipe —
+Bayesian inference can use the same recipe —
 
 1. Sample the parameter space (Latin hypercube or similar)
 2. Run the expensive model at each sampled point to build a training set
